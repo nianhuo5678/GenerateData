@@ -76,4 +76,20 @@ public class Util {
         }
 		return lines;
     } 
+    
+    /**
+     * 比较两个数组，返回相同元素的个数
+     * @param a,b 代比较的两个数组
+     * @return count 相同元素的数量，0表示没有相同
+     */
+    public static int compareArray(int[] a, int[] b) {
+    	int count = 0;
+    	//循环b数组的每一个元素，是否在a数组中出现，如果有count + 1
+    	for(int j = 0; j < b.length; j++) {
+    		if(Arrays.binarySearch(a, b[j]) >= 0) {
+    			count++;
+    		}
+    	}
+    	return count;
+    }
 }
