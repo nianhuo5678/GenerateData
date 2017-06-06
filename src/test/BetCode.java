@@ -1,6 +1,7 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class BetCode {
 	
@@ -27,13 +28,32 @@ public class BetCode {
 	
 	//蓝球数量
 	private int blueNum;
+	
+	//倍数
+	private int mutil = 1;
 
 	//红球列表
 	private ArrayList<Integer> redBalls;
 	
 	//蓝球列表
 	private ArrayList<Integer>  blueBalls;
+		
 	
+	
+	/**
+	 * @return the mutil
+	 */
+	public int getMutil() {
+		return mutil;
+	}
+
+	/**
+	 * @param mutil the mutil to set
+	 */
+	public void setMutil(int mutil) {
+		this.mutil = mutil;
+	}
+
 	/**
 	 * @param firstPrize the firstPrize to set
 	 */
@@ -207,21 +227,29 @@ public class BetCode {
 	 * 生成包含中奖号码的复式投注方案
 	 * @param redNum 复式投注中红球的个数
 	 * @param blueNum 复式投注中蓝球的个数
+	 * @param redWin 红球中奖号码个数
+	 * @param blueWin 蓝球中奖号码个数
 	 */
-	public void lotteryPlan(BetCode bc, int redNum, int blueNum) {
+	public void lotteryPlan(BetCode bc, int redNum, int blueNum, int redWin, int blueWin) {
 		
 		//添加红球中奖号码
-		for(int i : winRedBalls) {
-			bc.setRedBalls(i);
+//		for(int i : winRedBalls) {
+//			bc.setRedBalls(i);
+//		}
+		for(int i = 0; i < redWin; i++) {
+			bc.setRedBalls(winRedBalls[i]);
 		}
 		
 		//添加蓝球中奖号码
-		for(int i : winBlueBalls) {
-			bc.setBlueBalls(i);
+//		for(int i : winBlueBalls) {
+//			bc.setBlueBalls(i);
+//		}
+		for(int i = 0; i < blueWin; i++) {
+			bc.setBlueBalls(winBlueBalls[i]);
 		}
 		
 		//添加其余红球号码
-		for(int i = 0; i < (redNum - 6); i++) {
+		for(int i = 0; i < (redNum - redWin); i++) {
 			int ranRedBall = Util.randomRed();
 			while( bc.getRedBalls().contains(ranRedBall) ) {
 				ranRedBall = Util.randomRed();
@@ -230,13 +258,17 @@ public class BetCode {
 		}
 		
 		//添加其余蓝球号码
-		for(int i = 0; i < (blueNum - 1); i++) {
+		for(int i = 0; i < (blueNum - blueWin); i++) {
 			int ranBlueBall = Util.randomBlue();
 			while( bc.getBlueBalls().contains(ranBlueBall) ) {
 				ranBlueBall = Util.randomBlue();
 			}
 			bc.setBlueBalls(ranBlueBall);
 		}	
+		
+		//排序
+		Collections.sort(bc.getRedBalls());
+		Collections.sort(bc.getBlueBalls());
 	}
 	
 	/*
@@ -246,19 +278,24 @@ public class BetCode {
 		
 		//注数
 		int betCount = 0; 
+		//倍数
+		int mutil = 1;
 		
 		ArrayList<BetCode> bcList = new ArrayList<BetCode>();
 		
 		for(int r = MINREDNUM; r < MAXREDNUM; r++){
 			for(int b = MINBLUENUM; b < MAXBLUENUM; b++){
 				//注数等于红球的排列组合数乘以蓝球的排列组合数
-				betCount = Util.calC(b, MINBLUENUM) * Util.calC(r, MINREDNUM);
-				if(betCount > 10000 && r >= MINREDNUM && (b - 1) >= MINBLUENUM){
-					BetCode bc = new BetCode();
-					bc.setRedNum(r);
-					bc.setBlueNum(b-1);
-					bcList.add(bc);
-					break;
+				for(mutil = 1; mutil < 10000; mutil++) {
+					betCount = Util.calC(b, MINBLUENUM) * Util.calC(r, MINREDNUM) * mutil;
+					if(betCount > 10000 && r >= MINREDNUM && (b - 1) >= MINBLUENUM){
+						BetCode bc = new BetCode();
+						bc.setRedNum(r);
+						bc.setBlueNum(b - 1);
+						bc.setMutil(mutil - 1);
+						bcList.add(bc);
+						break;
+					}
 				}
 			}
 			if(r >= 15){
@@ -271,8 +308,8 @@ public class BetCode {
 	/**
 	 * 拆分复式投注方案,统计中奖数量
 	 */
-	public void calPrizes(BetCode bc) {
-		bc.lotteryPlan(bc, 12, 10);
+	public void calPrizes(BetCode bc, int redNum, int blueNum, int redWin, int blueWin) {
+		bc.lotteryPlan(bc, redNum, blueNum, redWin, blueWin);
 		ArrayList<int[]> redCodeCombination = new ArrayList<int[]>();
 		ArrayList<int[]> blueCodeCombination = new ArrayList<int[]>();
 	
@@ -281,12 +318,9 @@ public class BetCode {
 		//拆分蓝球排列组合
 		blueCodeCombination = Util.combinationSelect(blueCodeCombination, bc.getBlueBalls(), 0, new int[1], 0);
 		
-		System.out.println("plans: " + redCodeCombination.size() * blueCodeCombination.size() );
 		//合并红球蓝球作为一行投注记录
 		for(int[] i : redCodeCombination) {
 			for(int[] j : blueCodeCombination) {
-				
-				
 				
 				//比较红球相等的个数
 				int redCount = Util.compareArray(i, winRedBalls);
