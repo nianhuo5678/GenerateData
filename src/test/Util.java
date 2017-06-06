@@ -85,9 +85,11 @@ public class Util {
     public static int compareArray(int[] a, int[] b) {
     	int count = 0;
     	//循环b数组的每一个元素，是否在a数组中出现，如果有count + 1
-    	for(int j = 0; j < b.length; j++) {
-    		if(Arrays.binarySearch(a, b[j]) >= 0) {
-    			count++;
+    	for(int i = 0; i < a.length; i++) {
+    		for(int j = 0; j < b.length; j++) {
+    			if(a[i] ==  b[j]) {
+    				count++;
+    			}
     		}
     	}
     	return count;

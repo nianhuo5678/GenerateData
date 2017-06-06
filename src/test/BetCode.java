@@ -272,8 +272,6 @@ public class BetCode {
 	 * 拆分复式投注方案,统计中奖数量
 	 */
 	public void calPrizes(BetCode bc) {
-//		BetCode bc = new BetCode();		
-//		BetCode betCode = this.lotteryPlan(12, 10);
 		bc.lotteryPlan(bc, 12, 10);
 		ArrayList<int[]> redCodeCombination = new ArrayList<int[]>();
 		ArrayList<int[]> blueCodeCombination = new ArrayList<int[]>();
@@ -283,9 +281,12 @@ public class BetCode {
 		//拆分蓝球排列组合
 		blueCodeCombination = Util.combinationSelect(blueCodeCombination, bc.getBlueBalls(), 0, new int[1], 0);
 		
+		System.out.println("plans: " + redCodeCombination.size() * blueCodeCombination.size() );
 		//合并红球蓝球作为一行投注记录
 		for(int[] i : redCodeCombination) {
 			for(int[] j : blueCodeCombination) {
+				
+				
 				
 				//比较红球相等的个数
 				int redCount = Util.compareArray(i, winRedBalls);
@@ -318,7 +319,7 @@ public class BetCode {
 				}
 				
 				//五等奖
-				if( (redCount == 4) || (redCount == 1 && blueCount == 1) ) {
+				if( (redCount == 4 && blueCount == 0) || (redCount == 3 && blueCount == 1) ) {
 					fifthPrize++;
 					continue;
 				}
@@ -326,7 +327,7 @@ public class BetCode {
 				//六等奖
 				if( (redCount == 2 && blueCount == 1) || 
 						(redCount == 1 && blueCount == 1) || 
-						(redCount == 0) && (blueCount == 1)) {
+						(redCount == 0 && blueCount == 1 ) ) {
 					sixthPrize++;
 					continue;
 				}
